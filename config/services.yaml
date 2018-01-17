@@ -26,14 +26,8 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    command.create_artist:
-        class: App\Command\CreateArtistHandler
+    command.create_person:
+        class: App\Command\CreatePersonHandler
         public: true
         tags:
-            - { name: command_handler, handles: App\Command\CreateArtist }
-
-    command.create_designer:
-        class: App\Command\CreateDesignerHandler
-        public: true
-        tags:
-            - { name: command_handler, handles: App\Command\CreateDesigner }
+            - { name: command_handler, handles: App\Command\CreatePerson }

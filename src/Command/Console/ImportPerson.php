@@ -2,9 +2,9 @@
 
 namespace App\Command\Console;
 
-use App\Command\CreateArtist as CreateArtistCommand;
-use App\Entity\Artist;
-use App\Repository\ArtistRepository;
+use App\Command\CreatePerson as CreatePersonCommand;
+use App\Entity\Person;
+use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
@@ -14,32 +14,32 @@ use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class ImportArtist extends Command
+class ImportPerson extends Command
 {
-    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/boardgameartist/';
+    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/person/';
 
     /** @var CommandBus */
     private $commandBus;
 
-    /** @var ArtistRepository */
-    private $artistRepository;
+    /** @var PersonRepository */
+    private $personRepository;
 
     /** @var EntityManagerInterface */
     private $entityManager;
 
     /**
      * @param CommandBus             $commandBus
-     * @param ArtistRepository       $artistRepository
+     * @param PersonRepository       $personRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         CommandBus $commandBus,
-        ArtistRepository $artistRepository,
+        PersonRepository $personRepository,
         EntityManagerInterface $entityManager
     ) {
         parent::__construct();
         $this->commandBus = $commandBus;
-        $this->artistRepository = $artistRepository;
+        $this->personRepository = $personRepository;
         $this->entityManager = $entityManager;
 
         $entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
@@ -48,12 +48,12 @@ class ImportArtist extends Command
     protected function configure()
     {
         $this
-            ->setName('app:import-artists')
-            ->setDescription('Imports artists from board game geek')
+            ->setName('app:import-persons')
+            ->setDescription('Imports persons from board game geek')
             ->addArgument(
-                'artists',
+                'persons',
                 InputArgument::IS_ARRAY,
-                "The id's of the artists to import",
+                "The id's of the persons to import",
                 range(1, 100000)
             );
     }
@@ -66,7 +66,7 @@ class ImportArtist extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($input->getArgument('artists') as $key => $artist) {
+        foreach ($input->getArgument('persons') as $key => $person) {
             if (0 === $key % 10) {
                 $output->writeln(
                     '<comment>'.
@@ -81,34 +81,34 @@ class ImportArtist extends Command
                 gc_collect_cycles();
             }
 
-            if ($this->artistRepository->findByBoardGameGeekId($artist) instanceof Artist) {
-                $output->writeln("<comment>Artist with id $artist already imported</comment>");
+            if ($this->personRepository->findByBoardGameGeekId($person) instanceof Person) {
+                $output->writeln("<comment>Person with id $person already imported</comment>");
                 continue;
             }
 
             try {
-                $data = $this->getArtistInfo(
-                    intval($artist)
+                $data = $this->getPersonInfo(
+                    intval($person)
                 );
             } catch (Exception $e) {
-                $output->writeln("<error>Artist with id $artist returned an error</error>");
+                $output->writeln("<error>Person with id $person returned an error</error>");
                 continue;
             }
 
             if ($data) {
                 try {
-                    $createArtist = $this->createCommandFromSimpleXMLElement($data, $artist);
+                    $createPerson = $this->createCommandFromSimpleXMLElement($data, $person);
                 } catch (Exception $e) {
-                    $output->writeln("<error>Artist with id $artist has invalid data</error>");
+                    $output->writeln("<error>Person with id $person has invalid data</error>");
                     continue;
                 }
 
-                $this->commandBus->handle($createArtist);
+                $this->commandBus->handle($createPerson);
                 $output->writeln(
-                    "<info>Artist with id $artist imported as ".$createArtist->getName().'</info>'
+                    "<info>Person with id $person imported as ".$createPerson->getName().'</info>'
                 );
             } else {
-                $output->writeln("<comment>Artist with id $artist not found</comment>");
+                $output->writeln("<comment>Person with id $person not found</comment>");
             }
         }
     }
@@ -117,16 +117,15 @@ class ImportArtist extends Command
      * @param SimpleXMLElement $data
      * @param int              $id
      *
-     * @return CreateArtistCommand
+     * @return CreatePersonCommand
      */
     private function createCommandFromSimpleXMLElement(SimpleXMLElement $data, int $id)
     {
         $person = $data->children()[0];
 
-        return new CreateArtistCommand(
+        return new CreatePersonCommand(
             (string) $person->name,
             (string) $person->description,
-            null,
             null,
             $id
         );
@@ -137,7 +136,7 @@ class ImportArtist extends Command
      *
      * @return null|SimpleXMLElement
      */
-    private function getArtistInfo(int $id): ?SimpleXMLElement
+    private function getPersonInfo(int $id): ?SimpleXMLElement
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, self::ENDPOINT.$id);

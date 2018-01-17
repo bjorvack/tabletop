@@ -2,11 +2,10 @@
 
 namespace App\Command;
 
-use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-class CreateDesigner
+class CreatePerson
 {
     /** @var UuidInterface */
     private $uuid;
@@ -20,31 +19,25 @@ class CreateDesigner
     /** @var string|null */
     private $website;
 
-    /** @var Collection|null */
-    private $games;
-
     /** @var int|null */
     private $boardGameGeekId;
 
     /**
-     * @param string          $name
-     * @param null|string     $description
-     * @param string|null     $website
-     * @param Collection|null $games
-     * @param int|null        $boardGameGeekId
+     * @param string      $name
+     * @param null|string $description
+     * @param string|null $website
+     * @param int|null    $boardGameGeekId
      */
     public function __construct(
         string $name,
         ?string $description,
         ?string $website,
-        ?Collection $games,
         ?int $boardGameGeekId = null
     ) {
         $this->uuid = Uuid::uuid4();
         $this->name = $name;
         $this->description = $description;
         $this->website = $website;
-        $this->games = $games;
         $this->boardGameGeekId = $boardGameGeekId;
     }
 
@@ -78,14 +71,6 @@ class CreateDesigner
     public function getWebsite(): ?string
     {
         return $this->website;
-    }
-
-    /**
-     * @return Collection|null
-     */
-    public function getGames(): ?Collection
-    {
-        return $this->games;
     }
 
     /**

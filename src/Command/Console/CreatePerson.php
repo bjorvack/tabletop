@@ -2,14 +2,14 @@
 
 namespace App\Command\Console;
 
-use App\Command\CreateDesigner as CreateDesignerCommand;
+use App\Command\CreatePerson as CreatePersonCommand;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class CreateDesigner extends Command
+class CreatePerson extends Command
 {
     /** @var CommandBus */
     private $commandBus;
@@ -26,32 +26,31 @@ class CreateDesigner extends Command
     protected function configure()
     {
         $this
-            ->setName('app:create-designer')
-            ->setDescription('Creates a new designer')
-            ->addArgument('name', InputArgument::REQUIRED, 'Name of the designer')
+            ->setName('app:create-person')
+            ->setDescription('Creates a new person')
+            ->addArgument('name', InputArgument::REQUIRED, 'Name of the person')
             ->addArgument(
                 'description',
                 InputArgument::OPTIONAL,
-                'The description of the designer',
+                'The description of the person',
                 null
             )
             ->addArgument(
                 'website',
                 InputArgument::OPTIONAL,
-                'The website of the designer',
+                'The website of the person',
                 null
             );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $createDesigner = new CreateDesignerCommand(
+        $createPerson = new CreatePersonCommand(
             $input->getArgument('name'),
             $input->getArgument('description'),
-            $input->getArgument('website'),
-            null
+            $input->getArgument('website')
         );
 
-        $this->commandBus->handle($createDesigner);
+        $this->commandBus->handle($createPerson);
     }
 }

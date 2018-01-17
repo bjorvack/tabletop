@@ -49,13 +49,11 @@ class Game
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(
-     *     targetEntity="Artist",
-     *     inversedBy="games"
-     * )
+     * @ORM\ManyToMany(targetEntity="Person")
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(referencedColumnName="uuid")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="uuid")}
+     *     name="game_artist",
+     *     joinColumns={@ORM\JoinColumn(name="game_uuid", referencedColumnName="uuid")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="person_uuid", referencedColumnName="uuid")}
      * )
      */
     private $artists;
@@ -63,13 +61,11 @@ class Game
     /**
      * @var Collection
      *
-     * @ORM\ManyToMany(
-     *     targetEntity="Designer",
-     *     inversedBy="games"
-     * )
+     * @ORM\ManyToMany(targetEntity="Person")
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(referencedColumnName="uuid")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="uuid")}
+     *     name="game_designer",
+     *     joinColumns={@ORM\JoinColumn(name="game_uuid", referencedColumnName="uuid")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="person_uuid", referencedColumnName="uuid")}
      * )
      */
     private $designers;
