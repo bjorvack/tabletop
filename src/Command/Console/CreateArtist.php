@@ -27,7 +27,6 @@ class CreateArtist extends Command
             ->setDescription('Creates a new artist')
             ->addArgument('name', InputArgument::REQUIRED, 'Name of the artist')
             ->addArgument('website', InputArgument::OPTIONAL, 'The website of the artist', null);
-        ;
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

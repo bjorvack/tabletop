@@ -50,8 +50,8 @@ class Designer
 
     /**
      * @param UuidInterface $uuid
-     * @param string $name
-     * @param null|string $website
+     * @param string        $name
+     * @param null|string   $website
      */
     public function __construct(
         UuidInterface $uuid,

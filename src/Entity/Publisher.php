@@ -49,9 +49,9 @@ class Publisher
     private $games;
 
     /**
-     * @param UuidInterface $uuid
-     * @param string $name
-     * @param null|string $website
+     * @param UuidInterface   $uuid
+     * @param string          $name
+     * @param null|string     $website
      * @param Collection|null $games
      */
     public function __construct(

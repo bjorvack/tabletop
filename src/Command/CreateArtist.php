@@ -21,8 +21,8 @@ class CreateArtist
     private $games;
 
     /**
-     * @param string $name
-     * @param string|null $website
+     * @param string          $name
+     * @param string|null     $website
      * @param Collection|null $games
      */
     public function __construct(string $name, ?string $website, ?Collection $games)

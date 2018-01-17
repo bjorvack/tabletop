@@ -89,13 +89,13 @@ class Game
     private $publishers;
 
     /**
-     * @param UuidInterface $uuid
-     * @param string $title
-     * @param null|string $description
+     * @param UuidInterface     $uuid
+     * @param string            $title
+     * @param null|string       $description
      * @param DateTimeImmutable $publishedOn
-     * @param Collection|null $artists
-     * @param Collection|null $designers
-     * @param Collection|null $publishers
+     * @param Collection|null   $artists
+     * @param Collection|null   $designers
+     * @param Collection|null   $publishers
      */
     public function __construct(
         UuidInterface $uuid,

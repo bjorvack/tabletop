@@ -25,6 +25,7 @@ class PublisherRepository implements PublisherRepositoryInterface
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Publisher::class);
     }
+
     /**
      * @param Publisher $publisher
      */

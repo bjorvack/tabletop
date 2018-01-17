@@ -46,6 +46,7 @@ class ArtistRepository implements ArtistRepositoryInterface
 
     /**
      * @param UuidInterface $uuid
+     *
      * @return Artist|null
      */
     public function find(UuidInterface $uuid): ?Artist
