@@ -63,9 +63,14 @@ class ImportArtist extends Command
                 continue;
             }
 
-            $data = $this->getArtistInfo(
-                intval($artist)
-            );
+            try {
+                $data = $this->getArtistInfo(
+                    intval($artist)
+                );
+            } catch (Exception $e) {
+                $output->writeln("<error>Artist with id $artist returned an error</error>");
+                continue;
+            }
 
             if ($data) {
                 try {
