@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Publisher;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Ramsey\Uuid\UuidInterface;
 
-class PublisherRepository extends ServiceEntityRepository
+interface PublisherRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Publisher::class);
-    }
+    public function save(Publisher $publisher): void;
+
+    public function remove(Publisher $publisher): void;
+
+    public function find(UuidInterface $uuid): ?Publisher;
 }

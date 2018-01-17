@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Game;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Ramsey\Uuid\UuidInterface;
 
-class GameRepository extends ServiceEntityRepository
+interface GameRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Game::class);
-    }
+    public function save(Game $game): void;
+
+    public function remove(Game $game): void;
+
+    public function find(UuidInterface $uuid): ?Game;
 }

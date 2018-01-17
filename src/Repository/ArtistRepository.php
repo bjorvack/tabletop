@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Artist;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Ramsey\Uuid\UuidInterface;
 
-class ArtistRepository extends ServiceEntityRepository
+interface ArtistRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Artist::class);
-    }
+    public function save(Artist $artist): void;
+
+    public function remove(Artist $artist): void;
+
+    public function find(UuidInterface $uuid): ?Artist;
 }

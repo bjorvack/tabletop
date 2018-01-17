@@ -3,13 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Designer;
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Ramsey\Uuid\UuidInterface;
 
-class DesignerRepository extends ServiceEntityRepository
+interface DesignerRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
-        parent::__construct($registry, Designer::class);
-    }
+    public function save(Designer $designer): void;
+
+    public function remove(Designer $designer): void;
+
+    public function find(UuidInterface $uuid): ?Designer;
 }
