@@ -5,6 +5,7 @@ namespace App\Command\Console;
 use App\Command\CreateArtist as CreateArtistCommand;
 use App\Entity\Artist;
 use App\Repository\ArtistRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
 use SimpleXMLElement;
@@ -23,17 +24,25 @@ class ImportArtist extends Command
     /** @var ArtistRepository */
     private $artistRepository;
 
+    /** @var EntityManagerInterface */
+    private $entityManager;
+
     /**
-     * @param CommandBus       $commandBus
-     * @param ArtistRepository $artistRepository
+     * @param CommandBus             $commandBus
+     * @param ArtistRepository       $artistRepository
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         CommandBus $commandBus,
-        ArtistRepository $artistRepository
+        ArtistRepository $artistRepository,
+        EntityManagerInterface $entityManager
     ) {
         parent::__construct();
         $this->commandBus = $commandBus;
         $this->artistRepository = $artistRepository;
+        $this->entityManager = $entityManager;
+
+        $entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
     }
 
     protected function configure()
@@ -57,7 +66,21 @@ class ImportArtist extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($input->getArgument('artists') as $artist) {
+        foreach ($input->getArgument('artists') as $key => $artist) {
+            if (0 === $key % 10) {
+                $output->writeln(
+                    '<comment>'.
+                    sprintf(
+                        'Memory usage (currently) %dKB/ (max) %dKB',
+                        round(memory_get_usage(true) / 1024),
+                        memory_get_peak_usage(true) / 1024
+                    ).
+                    '</comment>'
+                );
+                $this->entityManager->clear();
+                gc_collect_cycles();
+            }
+
             if ($this->artistRepository->findByBoardGameGeekId($artist) instanceof Artist) {
                 $output->writeln("<comment>Artist with id $artist already imported</comment>");
                 continue;
