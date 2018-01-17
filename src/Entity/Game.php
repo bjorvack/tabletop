@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -45,21 +47,60 @@ class Game
     private $publishedOn;
 
     /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="Artist",
+     *     inversedBy="games"
+     * )
+     */
+    private $artists;
+
+    /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="Designer",
+     *     inversedBy="games"
+     * )
+     */
+    private $designers;
+
+    /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="Publisher",
+     *     inversedBy="games"
+     * )
+     */
+    private $publishers;
+
+    /**
      * @param UuidInterface $uuid
      * @param string $title
      * @param null|string $description
      * @param DateTimeImmutable $publishedOn
+     * @param Collection|null $artists
+     * @param Collection|null $designers
+     * @param Collection|null $publishers
      */
     public function __construct(
         UuidInterface $uuid,
         string $title,
         ?string $description,
-        DateTimeImmutable $publishedOn
+        DateTimeImmutable $publishedOn,
+        ?Collection $artists,
+        ?Collection $designers,
+        ?Collection $publishers
     ) {
         $this->uuid = $uuid;
         $this->title = $title;
         $this->description = $description;
         $this->publishedOn = $publishedOn;
+        $this->artists = $artists instanceof Collection ? $artists : new ArrayCollection();
+        $this->designers = $designers instanceof Collection ? $designers : new ArrayCollection();
+        $this->publishers = $publishers instanceof Collection ? $publishers : new ArrayCollection();
     }
 
     /**
@@ -92,5 +133,29 @@ class Game
     public function getPublishedOn(): DateTimeImmutable
     {
         return $this->publishedOn;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getArtists(): Collection
+    {
+        return $this->artists;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getDesigners(): Collection
+    {
+        return $this->designers;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getPublishers(): Collection
+    {
+        return $this->publishers;
     }
 }

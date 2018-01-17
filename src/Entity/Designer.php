@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -37,6 +39,16 @@ class Designer
     private $website;
 
     /**
+     * @var Collection
+     *
+     * @ORM\ManyToMany(
+     *     targetEntity="Game",
+     *     mappedBy="designers"
+     * )
+     */
+    private $games;
+
+    /**
      * @param UuidInterface $uuid
      * @param string $name
      * @param null|string $website
@@ -44,11 +56,13 @@ class Designer
     public function __construct(
         UuidInterface $uuid,
         string $name,
-        ?string $website
+        ?string $website,
+        ?Collection $games
     ) {
         $this->uuid = $uuid;
         $this->name = $name;
         $this->website = $website;
+        $this->games = $games instanceof Collection ? $games : new ArrayCollection();
     }
 
     /**
@@ -73,5 +87,13 @@ class Designer
     public function getWebsite(): ?string
     {
         return $this->website;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getGames(): Collection
+    {
+        return $this->games;
     }
 }
