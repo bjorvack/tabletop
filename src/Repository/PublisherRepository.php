@@ -12,4 +12,6 @@ interface PublisherRepository
     public function remove(Publisher $publisher): void;
 
     public function find(UuidInterface $uuid): ?Publisher;
+
+    public function findByBoardGameGeekId(int $id): ?Publisher;
 }

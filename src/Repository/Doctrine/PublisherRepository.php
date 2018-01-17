@@ -53,4 +53,14 @@ class PublisherRepository implements PublisherRepositoryInterface
     {
         return $this->repository->find($uuid);
     }
+
+    /**
+     * @param int $id
+     *
+     * @return Publisher|null
+     */
+    public function findByBoardGameGeekId(int $id): ?Publisher
+    {
+        return $this->repository->findOneBy(['boardGameGeekId' => $id]);
+    }
 }

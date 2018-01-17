@@ -2,8 +2,6 @@
 
 namespace App\Entity;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Ramsey\Uuid\UuidInterface;
 
@@ -39,31 +37,32 @@ class Publisher
     private $website;
 
     /**
-     * @var Collection
+     * @var int|null
      *
-     * @ORM\ManyToMany(
-     *     targetEntity="Game",
-     *     mappedBy="publishers"
+     * @ORM\Column(
+     *     type="integer",
+     *     nullable=true,
+     *     unique=true
      * )
      */
-    private $games;
+    private $boardGameGeekId;
 
     /**
-     * @param UuidInterface   $uuid
-     * @param string          $name
-     * @param null|string     $website
-     * @param Collection|null $games
+     * @param UuidInterface $uuid
+     * @param string $name
+     * @param null|string $website
+     * @param int|null $boardGameGeekId
      */
     public function __construct(
         UuidInterface $uuid,
         string $name,
         ?string $website,
-        ?Collection $games
+        ?int $boardGameGeekId
     ) {
         $this->uuid = $uuid;
         $this->name = $name;
         $this->website = $website;
-        $this->games = $games instanceof Collection ? $games : new ArrayCollection();
+        $this->boardGameGeekId = $boardGameGeekId;
     }
 
     /**
@@ -91,10 +90,10 @@ class Publisher
     }
 
     /**
-     * @return Collection
+     * @return int|null
      */
-    public function getGames(): Collection
+    public function getBoardGameGeekId(): ?int
     {
-        return $this->games;
+        return $this->boardGameGeekId;
     }
 }

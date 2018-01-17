@@ -78,8 +78,9 @@ class Game
      *     inversedBy="games"
      * )
      * @ORM\JoinTable(
-     *     joinColumns={@ORM\JoinColumn(referencedColumnName="uuid")},
-     *     inverseJoinColumns={@ORM\JoinColumn(referencedColumnName="uuid")}
+     *     name="game_publisher",
+     *     joinColumns={@ORM\JoinColumn(name="game_uuid", referencedColumnName="uuid")},
+     *     inverseJoinColumns={@ORM\JoinColumn(name="publisher_uuid", referencedColumnName="uuid")}
      * )
      */
     private $publishers;
