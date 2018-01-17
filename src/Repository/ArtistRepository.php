@@ -12,4 +12,6 @@ interface ArtistRepository
     public function remove(Artist $artist): void;
 
     public function find(UuidInterface $uuid): ?Artist;
+
+    public function findByBoardGameGeekId(int $id): ?Artist;
 }

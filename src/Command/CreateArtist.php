@@ -23,23 +23,29 @@ class CreateArtist
     /** @var Collection|null */
     private $games;
 
+    /** @var int|null */
+    private $boardGameGeekId;
+
     /**
      * @param string          $name
      * @param null|string     $description
      * @param string|null     $website
      * @param Collection|null $games
+     * @param int|null        $boardGameGeekId
      */
     public function __construct(
         string $name,
         ?string $description,
         ?string $website,
-        ?Collection $games
+        ?Collection $games,
+        ?int $boardGameGeekId = null
     ) {
         $this->uuid = Uuid::uuid4();
         $this->name = $name;
         $this->description = $description;
         $this->website = $website;
         $this->games = $games;
+        $this->boardGameGeekId = $boardGameGeekId;
     }
 
     /**
@@ -80,5 +86,13 @@ class CreateArtist
     public function getGames(): ?Collection
     {
         return $this->games;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getBoardGameGeekId(): ?int
+    {
+        return $this->boardGameGeekId;
     }
 }

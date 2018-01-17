@@ -56,24 +56,38 @@ class Artist
     private $games;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(
+     *     type="integer",
+     *     nullable=true,
+     *     unique=true
+     * )
+     */
+    private $boardGameGeekId;
+
+    /**
      * @param UuidInterface   $uuid
      * @param string          $name
      * @param string|null     $description
      * @param null|string     $website
      * @param Collection|null $games
+     * @param int|null        $boardGameGeekId
      */
     public function __construct(
         UuidInterface $uuid,
         string $name,
         ?string $description,
         ?string $website,
-        ?Collection $games
+        ?Collection $games,
+        ?int $boardGameGeekId
     ) {
         $this->uuid = $uuid;
         $this->name = $name;
         $this->description = $description;
         $this->website = $website;
         $this->games = $games instanceof Collection ? $games : new ArrayCollection();
+        $this->boardGameGeekId = $boardGameGeekId;
     }
 
     /**
@@ -114,5 +128,13 @@ class Artist
     public function getGames(): Collection
     {
         return $this->games;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBoardGameGeekId(): int
+    {
+        return $this->boardGameGeekId;
     }
 }

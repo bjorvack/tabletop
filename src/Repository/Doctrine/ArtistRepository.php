@@ -53,4 +53,14 @@ class ArtistRepository implements ArtistRepositoryInterface
     {
         return $this->repository->find($uuid);
     }
+
+    /**
+     * @param int $id
+     *
+     * @return Artist|null
+     */
+    public function findByBoardGameGeekId(int $id): ?Artist
+    {
+        return $this->repository->findOneBy(['boardGameGeekId' => $id]);
+    }
 }

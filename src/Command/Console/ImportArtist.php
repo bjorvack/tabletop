@@ -3,6 +3,9 @@
 namespace App\Command\Console;
 
 use App\Command\CreateArtist as CreateArtistCommand;
+use App\Entity\Artist;
+use App\Repository\ArtistRepository;
+use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
 use SimpleXMLElement;
 use Symfony\Component\Console\Command\Command;
@@ -17,13 +20,20 @@ class ImportArtist extends Command
     /** @var CommandBus */
     private $commandBus;
 
+    /** @var ArtistRepository */
+    private $artistRepository;
+
     /**
-     * @param CommandBus $commandBus
+     * @param CommandBus       $commandBus
+     * @param ArtistRepository $artistRepository
      */
-    public function __construct(CommandBus $commandBus)
-    {
+    public function __construct(
+        CommandBus $commandBus,
+        ArtistRepository $artistRepository
+    ) {
         parent::__construct();
         $this->commandBus = $commandBus;
+        $this->artistRepository = $artistRepository;
     }
 
     protected function configure()
@@ -48,29 +58,40 @@ class ImportArtist extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         foreach ($input->getArgument('artists') as $artist) {
+            if ($this->artistRepository->findByBoardGameGeekId($artist) instanceof Artist) {
+                $output->writeln("<comment>Artist with id $artist already imported</comment>");
+                continue;
+            }
+
             $data = $this->getArtistInfo(
                 intval($artist)
             );
 
             if ($data) {
-                $createArtist = $this->createCommandFromSimpleXMLElement($data);
+                try {
+                    $createArtist = $this->createCommandFromSimpleXMLElement($data, $artist);
+                } catch (Exception $e) {
+                    $output->writeln("<error>Artist with id $artist has invalid data</error>");
+                    continue;
+                }
 
                 $this->commandBus->handle($createArtist);
                 $output->writeln(
                     "<info>Artist with id $artist imported as ".$createArtist->getName().'</info>'
                 );
             } else {
-                $output->writeln("<error>Artist with id $artist not found</error>");
+                $output->writeln("<comment>Artist with id $artist not found</comment>");
             }
         }
     }
 
     /**
      * @param SimpleXMLElement $data
+     * @param int              $id
      *
      * @return CreateArtistCommand
      */
-    private function createCommandFromSimpleXMLElement(SimpleXMLElement $data)
+    private function createCommandFromSimpleXMLElement(SimpleXMLElement $data, int $id)
     {
         $person = $data->children()[0];
 
@@ -78,7 +99,8 @@ class ImportArtist extends Command
             (string) $person->name,
             (string) $person->description,
             null,
-            null
+            null,
+            $id
         );
     }
 

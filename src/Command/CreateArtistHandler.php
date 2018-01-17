@@ -30,7 +30,8 @@ class CreateArtistHandler
                 $createArtist->getName(),
                 $createArtist->getDescription(),
                 $createArtist->getWebsite(),
-                $createArtist->getGames()
+                $createArtist->getGames(),
+                $createArtist->getBoardGameGeekId()
             )
         );
     }
