@@ -4,37 +4,30 @@ namespace App\Repository\Doctrine;
 
 use App\Entity\Game;
 use App\Repository\GameRepository as GameRepositoryInterface;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Ramsey\Uuid\UuidInterface;
 
 class GameRepository implements GameRepositoryInterface
 {
-    /** @var EntityManager */
+    /** @var EntityManagerInterface */
     private $entityManager;
 
     /** @var EntityRepository */
     private $repository;
 
     /**
-     * @param EntityManager $entityManager
-     * @param EntityRepository $repository
+     * @param EntityManagerInterface $entityManager
      */
     public function __construct(
-        EntityManager $entityManager,
-        EntityRepository $repository
+        EntityManagerInterface $entityManager
     ) {
         $this->entityManager = $entityManager;
-        $this->repository = $repository;
+        $this->repository = $entityManager->getRepository(Game::class);
     }
 
     /**
      * @param Game $game
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function save(Game $game): void
     {
@@ -44,9 +37,6 @@ class GameRepository implements GameRepositoryInterface
 
     /**
      * @param Game $game
-     *
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
     public function remove(Game $game): void
     {
