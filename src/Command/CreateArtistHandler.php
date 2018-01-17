@@ -28,6 +28,7 @@ class CreateArtistHandler
             new Artist(
                 $createArtist->getUuid(),
                 $createArtist->getName(),
+                $createArtist->getDescription(),
                 $createArtist->getWebsite(),
                 $createArtist->getGames()
             )

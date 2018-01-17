@@ -15,6 +15,9 @@ class CreateArtist
     private $name;
 
     /** @var string|null */
+    private $description;
+
+    /** @var string|null */
     private $website;
 
     /** @var Collection|null */
@@ -22,13 +25,20 @@ class CreateArtist
 
     /**
      * @param string          $name
+     * @param null|string     $description
      * @param string|null     $website
      * @param Collection|null $games
      */
-    public function __construct(string $name, ?string $website, ?Collection $games)
-    {
+    public function __construct(
+        string $name,
+        ?string $description,
+        ?string $website,
+        ?Collection $games
+    ) {
         $this->uuid = Uuid::uuid4();
         $this->name = $name;
+        $this->description = $description;
+        $this->website = $website;
         $this->games = $games;
     }
 
@@ -46,6 +56,14 @@ class CreateArtist
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 
     /**

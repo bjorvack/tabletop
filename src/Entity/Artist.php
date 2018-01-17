@@ -31,6 +31,13 @@ class Artist
     /**
      * @var string|null
      *
+     * @ORM\Column(type="text", nullable=true)
+     */
+    private $description;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(
      *     type="string",
      *     nullable=true
@@ -51,17 +58,20 @@ class Artist
     /**
      * @param UuidInterface   $uuid
      * @param string          $name
+     * @param string|null     $description
      * @param null|string     $website
      * @param Collection|null $games
      */
     public function __construct(
         UuidInterface $uuid,
         string $name,
+        ?string $description,
         ?string $website,
         ?Collection $games
     ) {
         $this->uuid = $uuid;
         $this->name = $name;
+        $this->description = $description;
         $this->website = $website;
         $this->games = $games instanceof Collection ? $games : new ArrayCollection();
     }
@@ -80,6 +90,14 @@ class Artist
     public function getName(): string
     {
         return $this->name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
     }
 
     /**
