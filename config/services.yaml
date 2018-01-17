@@ -27,7 +27,13 @@ services:
     # please note that last definitions always *replace* previous ones
 
     command.create_artist:
-            class: App\Command\CreateArtistHandler
-            public: true
-            tags:
-                - { name: command_handler, handles: App\Command\CreateArtist }
+        class: App\Command\CreateArtistHandler
+        public: true
+        tags:
+            - { name: command_handler, handles: App\Command\CreateArtist }
+
+    command.create_designer:
+        class: App\Command\CreateDesignerHandler
+        public: true
+        tags:
+            - { name: command_handler, handles: App\Command\CreateDesigner }

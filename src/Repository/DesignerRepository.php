@@ -12,4 +12,6 @@ interface DesignerRepository
     public function remove(Designer $designer): void;
 
     public function find(UuidInterface $uuid): ?Designer;
+
+    public function findByBoardGameGeekId(int $id): ?Designer;
 }

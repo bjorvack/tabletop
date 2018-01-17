@@ -1,92 +1,50 @@
 <?php
 
-namespace App\Entity;
+namespace App\Command;
 
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity()
- */
-class Artist
+class CreateDesigner
 {
-    /**
-     * @var UuidInterface
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\Column(type="uuid")
-     */
+    /** @var UuidInterface */
     private $uuid;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string")
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(type="text", nullable=true)
-     */
+    /** @var string|null */
     private $description;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(
-     *     type="string",
-     *     nullable=true
-     * )
-     */
+    /** @var string|null */
     private $website;
 
-    /**
-     * @var Collection
-     *
-     * @ORM\ManyToMany(
-     *     targetEntity="Game",
-     *     mappedBy="artists"
-     * )
-     */
+    /** @var Collection|null */
     private $games;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(
-     *     type="integer",
-     *     nullable=true,
-     *     unique=true
-     * )
-     */
+    /** @var int|null */
     private $boardGameGeekId;
 
     /**
-     * @param UuidInterface   $uuid
      * @param string          $name
-     * @param string|null     $description
-     * @param null|string     $website
+     * @param null|string     $description
+     * @param string|null     $website
      * @param Collection|null $games
      * @param int|null        $boardGameGeekId
      */
     public function __construct(
-        UuidInterface $uuid,
         string $name,
         ?string $description,
         ?string $website,
         ?Collection $games,
-        ?int $boardGameGeekId
+        ?int $boardGameGeekId = null
     ) {
-        $this->uuid = $uuid;
+        $this->uuid = Uuid::uuid4();
         $this->name = $name;
         $this->description = $description;
         $this->website = $website;
-        $this->games = $games instanceof Collection ? $games : new ArrayCollection();
+        $this->games = $games;
         $this->boardGameGeekId = $boardGameGeekId;
     }
 
@@ -107,7 +65,7 @@ class Artist
     }
 
     /**
-     * @return string
+     * @return null|string
      */
     public function getDescription(): ?string
     {
@@ -115,7 +73,7 @@ class Artist
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getWebsite(): ?string
     {
@@ -123,9 +81,9 @@ class Artist
     }
 
     /**
-     * @return Collection
+     * @return Collection|null
      */
-    public function getGames(): Collection
+    public function getGames(): ?Collection
     {
         return $this->games;
     }

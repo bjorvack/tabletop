@@ -53,4 +53,14 @@ class DesignerRepository implements DesignerRepositoryInterface
     {
         return $this->repository->find($uuid);
     }
+
+    /**
+     * @param int $id
+     *
+     * @return Designer|null
+     */
+    public function findByBoardGameGeekId(int $id): ?Designer
+    {
+        return $this->repository->findOneBy(['boardGameGeekId' => $id]);
+    }
 }

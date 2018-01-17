@@ -31,6 +31,13 @@ class Designer
     /**
      * @var string|null
      *
+     * @ORM\Column(type="string", nullable=true)
+     */
+    private $description;
+
+    /**
+     * @var string|null
+     *
      * @ORM\Column(
      *     type="string",
      *     nullable=true
@@ -49,20 +56,38 @@ class Designer
     private $games;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(
+     *     type="integer",
+     *     nullable=true,
+     *     unique=true
+     * )
+     */
+    private $boardGameGeekId;
+
+    /**
      * @param UuidInterface $uuid
-     * @param string        $name
-     * @param null|string   $website
+     * @param string $name
+     * @param null|string $description
+     * @param null|string $website
+     * @param Collection|null $games
+     * @param int|null $boardGameGeekId
      */
     public function __construct(
         UuidInterface $uuid,
         string $name,
+        ?string $description,
         ?string $website,
-        ?Collection $games
+        ?Collection $games,
+        ?int $boardGameGeekId
     ) {
         $this->uuid = $uuid;
         $this->name = $name;
+        $this->description = $description;
         $this->website = $website;
         $this->games = $games instanceof Collection ? $games : new ArrayCollection();
+        $this->boardGameGeekId = $boardGameGeekId;
     }
 
     /**
@@ -82,6 +107,14 @@ class Designer
     }
 
     /**
+     * @return string
+     */
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    /**
      * @return null|string
      */
     public function getWebsite(): ?string
@@ -95,5 +128,13 @@ class Designer
     public function getGames(): Collection
     {
         return $this->games;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getBoardGameGeekId(): ?int
+    {
+        return $this->boardGameGeekId;
     }
 }
