@@ -3,6 +3,7 @@
 namespace App\Repository\Doctrine;
 
 use App\Entity\Game;
+use App\Entity\Person;
 use App\Repository\GameRepository as GameRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
@@ -52,5 +53,37 @@ class GameRepository implements GameRepositoryInterface
     public function find(UuidInterface $uuid): ?Game
     {
         return $this->repository->find($uuid);
+    }
+
+    /**
+     * @param Person $person
+     *
+     * @return array
+     */
+    public function findByDesigner(Person $person): array
+    {
+        return $this->repository->createQueryBuilder('g')
+            ->innerJoin('g.designers', 'p')
+            ->where('p.uuid = :designer')
+            ->orderBy('g.title', 'DESC')
+            ->setParameter('designer', (string) $person->getUuid())
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
+     * @param Person $person
+     *
+     * @return array
+     */
+    public function findByArtist(Person $person): array
+    {
+        return $this->repository->createQueryBuilder('g')
+            ->innerJoin('g.artists', 'p')
+            ->where('p.uuid = :artist')
+            ->orderBy('g.title', 'DESC')
+            ->setParameter('artist', (string) $person->getUuid())
+            ->getQuery()
+            ->getResult();
     }
 }
