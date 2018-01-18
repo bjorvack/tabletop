@@ -1,77 +1,40 @@
 <?php
 
-namespace App\Entity;
+namespace App\Command;
 
-use Doctrine\ORM\Mapping as ORM;
+use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
 
-/**
- * @ORM\Entity()
- */
-class Publisher
+class CreatePublisher
 {
-    /**
-     * @var UuidInterface
-     *
-     * @ORM\Id
-     * @ORM\GeneratedValue(strategy="NONE")
-     * @ORM\Column(type="uuid")
-     */
+    /** @var UuidInterface */
     private $uuid;
 
-    /**
-     * @var string
-     *
-     * @ORM\Column(type="string")
-     */
+    /** @var string */
     private $name;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(
-     *     type="string",
-     *     nullable=true
-     * )
-     */
+    /** @var string|null */
     private $description;
 
-    /**
-     * @var string|null
-     *
-     * @ORM\Column(
-     *     type="string",
-     *     nullable=true
-     * )
-     */
+    /** @var string|null */
     private $website;
 
-    /**
-     * @var int|null
-     *
-     * @ORM\Column(
-     *     type="integer",
-     *     nullable=true,
-     *     unique=true
-     * )
-     */
+    /** @var int|null */
     private $boardGameGeekId;
 
     /**
-     * @param UuidInterface $uuid
-     * @param string        $name
-     * @param null|string   $description
-     * @param null|string   $website
-     * @param int|null      $boardGameGeekId
+     * @param string      $name
+     * @param null|string $description
+     * @param string|null $website
+     * @param int|null    $boardGameGeekId
      */
     public function __construct(
-        UuidInterface $uuid,
         string $name,
         ?string $description,
         ?string $website,
-        ?int $boardGameGeekId
+        ?int $boardGameGeekId = null
     ) {
-        $this->uuid = $uuid;
+        $this->uuid = Uuid::uuid4();
         $this->name = $name;
         $this->description = $description;
         $this->website = $website;
@@ -103,7 +66,7 @@ class Publisher
     }
 
     /**
-     * @return null|string
+     * @return string|null
      */
     public function getWebsite(): ?string
     {

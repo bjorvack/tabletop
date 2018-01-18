@@ -31,3 +31,9 @@ services:
         public: true
         tags:
             - { name: command_handler, handles: App\Command\CreatePerson }
+
+    command.create_publisher:
+        class: App\Command\CreatePublisherHandler
+        public: true
+        tags:
+            - { name: command_handler, handles: App\Command\CreatePublisher }
