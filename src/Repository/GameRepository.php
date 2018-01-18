@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Game;
 use App\Entity\Person;
-use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\UuidInterface;
 
 interface GameRepository
