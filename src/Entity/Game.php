@@ -93,14 +93,26 @@ class Game
     private $publishers;
 
     /**
-     * @param UuidInterface $uuid
-     * @param string $title
-     * @param null|string $description
+     * @var int|null
+     *
+     * @ORM\Column(
+     *     type="integer",
+     *     nullable=true,
+     *     unique=true
+     * )
+     */
+    private $boardGameGeekId;
+
+    /**
+     * @param UuidInterface     $uuid
+     * @param string            $title
+     * @param null|string       $description
      * @param DateTimeImmutable $publishedOn
-     * @param string $image
-     * @param Collection|null $artists
-     * @param Collection|null $designers
-     * @param Collection|null $publishers
+     * @param string            $image
+     * @param Collection|null   $artists
+     * @param Collection|null   $designers
+     * @param Collection|null   $publishers
+     * @param int|null          $boardGameGeekId
      */
     public function __construct(
         UuidInterface $uuid,
@@ -110,7 +122,8 @@ class Game
         string $image,
         ?Collection $artists,
         ?Collection $designers,
-        ?Collection $publishers
+        ?Collection $publishers,
+        ?int $boardGameGeekId
     ) {
         $this->uuid = $uuid;
         $this->title = $title;
@@ -120,6 +133,7 @@ class Game
         $this->artists = $artists instanceof Collection ? $artists : new ArrayCollection();
         $this->designers = $designers instanceof Collection ? $designers : new ArrayCollection();
         $this->publishers = $publishers instanceof Collection ? $publishers : new ArrayCollection();
+        $this->boardGameGeekId = $boardGameGeekId;
     }
 
     /**
@@ -184,5 +198,13 @@ class Game
     public function getPublishers(): Collection
     {
         return $this->publishers;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getBoardGameGeekId(): ?int
+    {
+        return $this->boardGameGeekId;
     }
 }

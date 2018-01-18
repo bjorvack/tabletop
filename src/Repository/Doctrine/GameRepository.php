@@ -56,6 +56,16 @@ class GameRepository implements GameRepositoryInterface
     }
 
     /**
+     * @param int $id
+     *
+     * @return Person|null
+     */
+    public function findByBoardGameGeekId(int $id): ?Game
+    {
+        return $this->repository->findOneBy(['boardGameGeekId' => $id]);
+    }
+
+    /**
      * @param Person $person
      *
      * @return array

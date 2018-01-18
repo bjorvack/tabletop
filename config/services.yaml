@@ -37,3 +37,9 @@ services:
         public: true
         tags:
             - { name: command_handler, handles: App\Command\CreatePublisher }
+
+    command.create_game:
+        class: App\Command\CreateGameHandler
+        public: true
+        tags:
+            - { name: command_handler, handles: App\Command\CreateGame }

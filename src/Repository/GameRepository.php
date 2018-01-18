@@ -14,6 +14,8 @@ interface GameRepository
 
     public function find(UuidInterface $uuid): ?Game;
 
+    public function findByBoardGameGeekId(int $id): ?Game;
+
     public function findByDesigner(Person $person): array;
 
     public function findByArtist(Person $person): array;
