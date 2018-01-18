@@ -47,6 +47,13 @@ class Game
     private $publishedOn;
 
     /**
+     * @var string
+     *
+     * @ORM\Column(type="string")
+     */
+    private $image;
+
+    /**
      * @var Collection
      *
      * @ORM\ManyToMany(targetEntity="Person")
@@ -86,19 +93,21 @@ class Game
     private $publishers;
 
     /**
-     * @param UuidInterface     $uuid
-     * @param string            $title
-     * @param null|string       $description
+     * @param UuidInterface $uuid
+     * @param string $title
+     * @param null|string $description
      * @param DateTimeImmutable $publishedOn
-     * @param Collection|null   $artists
-     * @param Collection|null   $designers
-     * @param Collection|null   $publishers
+     * @param string $image
+     * @param Collection|null $artists
+     * @param Collection|null $designers
+     * @param Collection|null $publishers
      */
     public function __construct(
         UuidInterface $uuid,
         string $title,
         ?string $description,
         DateTimeImmutable $publishedOn,
+        string $image,
         ?Collection $artists,
         ?Collection $designers,
         ?Collection $publishers
@@ -107,6 +116,7 @@ class Game
         $this->title = $title;
         $this->description = $description;
         $this->publishedOn = $publishedOn;
+        $this->image = $image;
         $this->artists = $artists instanceof Collection ? $artists : new ArrayCollection();
         $this->designers = $designers instanceof Collection ? $designers : new ArrayCollection();
         $this->publishers = $publishers instanceof Collection ? $publishers : new ArrayCollection();
@@ -142,6 +152,14 @@ class Game
     public function getPublishedOn(): DateTimeImmutable
     {
         return $this->publishedOn;
+    }
+
+    /**
+     * @return string
+     */
+    public function getImage(): string
+    {
+        return $this->image;
     }
 
     /**
