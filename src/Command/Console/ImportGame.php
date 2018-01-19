@@ -4,6 +4,7 @@ namespace App\Command\Console;
 
 use App\Command\CreateGame as CreateGameCommand;
 use App\Entity\Game;
+use App\Exception\ImportException;
 use App\Repository\GameRepository;
 use DateTimeImmutable;
 use Doctrine\ORM\EntityManagerInterface;
@@ -17,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportGame extends Command
 {
-    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/company/';
+    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/boardgame/';
 
     /** @var CommandBus */
     private $commandBus;
@@ -98,6 +99,7 @@ class ImportGame extends Command
 
             if ($data) {
                 try {
+                    /** @var CreateGameCommand $createGame */
                     $createGame = $this->createCommandFromSimpleXMLElement($data, $game);
                 } catch (Exception $e) {
                     $output->writeln("<error>Game with id $game has invalid data</error>");
@@ -106,7 +108,7 @@ class ImportGame extends Command
 
                 $this->commandBus->handle($createGame);
                 $output->writeln(
-                    "<info>Game with id $game imported as ".$createGame->getName().'</info>'
+                    "<info>Game with id $game imported as ".$createGame->getTitle().'</info>'
                 );
             } else {
                 $output->writeln("<comment>Game with id $game not found</comment>");
@@ -116,18 +118,31 @@ class ImportGame extends Command
 
     /**
      * @param SimpleXMLElement $data
-     * @param int              $id
+     * @param int $id
      *
      * @return CreateGameCommand
+     *
+     * @throws ImportException
      */
     private function createCommandFromSimpleXMLElement(SimpleXMLElement $data, int $id)
     {
         $game = $data->children()[0];
 
+        if ($game->error) {
+            throw ImportException::create();
+        }
+
+        $title = null;
+        foreach ($game->name as $name) {
+            if ((bool)  $name->attributes()->primary) {
+                $title = (string) $name;
+            }
+        }
+
         return new CreateGameCommand(
-            (string) $game->name,
+            $title,
             (string) $game->description,
-            DateTimeImmutable::createFromFormat('Y', (string) $game->publishedOn),
+            DateTimeImmutable::createFromFormat('Y', (string) $game->yearpublished),
             (string) $game->image,
             null,
             null,
