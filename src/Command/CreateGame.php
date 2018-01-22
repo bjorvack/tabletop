@@ -19,6 +19,12 @@ class CreateGame
     /** @var string|null */
     private $description;
 
+    /** @var int */
+    private $minPlayers;
+
+    /** @var int|null */
+    private $maxPlayers;
+
     /** @var DateTimeImmutable|null */
     private $publishedOn;
 
@@ -40,6 +46,8 @@ class CreateGame
     /**
      * @param string                 $title
      * @param null|string            $description
+     * @param int                    $minPlayers
+     * @param int|null               $maxPlayers
      * @param DateTimeImmutable|null $publishedOn
      * @param string                 $image
      * @param Collection|null        $artists
@@ -50,6 +58,8 @@ class CreateGame
     public function __construct(
         string $title,
         ?string $description,
+        int $minPlayers,
+        ?int $maxPlayers,
         ?DateTimeImmutable $publishedOn,
         string $image,
         ?Collection $artists,
@@ -66,6 +76,8 @@ class CreateGame
         $this->designers = $designers instanceof Collection ? $designers : new ArrayCollection();
         $this->publishers = $publishers instanceof Collection ? $publishers : new ArrayCollection();
         $this->boardGameGeekId = $boardGameGeek;
+        $this->minPlayers = $minPlayers;
+        $this->maxPlayers = $maxPlayers;
     }
 
     /**
@@ -90,6 +102,22 @@ class CreateGame
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinPlayers(): int
+    {
+        return $this->minPlayers;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxPlayers(): ?int
+    {
+        return $this->maxPlayers;
     }
 
     /**

@@ -40,6 +40,26 @@ class Game
     private $description;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(
+     *     type="integer",
+     *     options={"default": 1}
+     * )
+     */
+    private $minPlayers;
+
+    /**
+     * @var int|null
+     *
+     * @ORM\Column(
+     *     type="integer",
+     *     nullable=true
+     * )
+     */
+    private $maxPlayers;
+
+    /**
      * @var DateTimeImmutable
      *
      * @ORM\Column(type="datetime_immutable")
@@ -107,6 +127,8 @@ class Game
      * @param UuidInterface     $uuid
      * @param string            $title
      * @param null|string       $description
+     * @param int               $minPlayers
+     * @param int|null          $maxPlayers
      * @param DateTimeImmutable $publishedOn
      * @param string            $image
      * @param Collection|null   $artists
@@ -118,6 +140,8 @@ class Game
         UuidInterface $uuid,
         string $title,
         ?string $description,
+        int $minPlayers,
+        ?int $maxPlayers,
         DateTimeImmutable $publishedOn,
         string $image,
         ?Collection $artists,
@@ -134,6 +158,8 @@ class Game
         $this->designers = $designers instanceof Collection ? $designers : new ArrayCollection();
         $this->publishers = $publishers instanceof Collection ? $publishers : new ArrayCollection();
         $this->boardGameGeekId = $boardGameGeekId;
+        $this->minPlayers = $minPlayers;
+        $this->maxPlayers = $maxPlayers;
     }
 
     /**
@@ -158,6 +184,22 @@ class Game
     public function getDescription(): ?string
     {
         return $this->description;
+    }
+
+    /**
+     * @return int
+     */
+    public function getMinPlayers(): int
+    {
+        return $this->minPlayers;
+    }
+
+    /**
+     * @return int|null
+     */
+    public function getMaxPlayers(): ?int
+    {
+        return $this->maxPlayers;
     }
 
     /**

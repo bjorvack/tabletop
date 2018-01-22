@@ -28,6 +28,8 @@ class CreateGameHandler
                 $createGame->getUuid(),
                 $createGame->getTitle(),
                 $createGame->getDescription(),
+                $createGame->getMinPlayers(),
+                $createGame->getMaxPlayers(),
                 $createGame->getPublishedOn(),
                 $createGame->getImage(),
                 $createGame->getArtists(),

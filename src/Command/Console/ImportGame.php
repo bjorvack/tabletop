@@ -209,6 +209,8 @@ class ImportGame extends Command
         return new CreateGameCommand(
             $title,
             (string) $game->description,
+            (int) $game->minplayers,
+            (int) $game->maxplayers,
             DateTimeImmutable::createFromFormat('Y', (string) $game->yearpublished),
             (string) $game->image,
             $artists,
