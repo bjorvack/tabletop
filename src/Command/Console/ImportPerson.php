@@ -67,7 +67,20 @@ class ImportPerson extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($input->getArgument('persons') as $key => $person) {
+        $persons = $input->getArgument('persons');
+
+        $importedPersons = [];
+
+        foreach (array_chunk($persons, 100) as $chunk) {
+            $importedChunk = $this->personRepository->findByBoardGameGeekIds($chunk);
+            array_walk($importedChunk, function (Person &$item) {
+                $item = $item->getBoardGameGeekId();
+            });
+
+            $importedPersons = array_merge($importedPersons, $importedChunk);
+        }
+
+        foreach (array_diff($persons, $importedPersons) as $key => $person) {
             if (0 === $key % 10) {
                 $this->clearMemory($output);
             }
