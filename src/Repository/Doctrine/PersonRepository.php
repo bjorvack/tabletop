@@ -63,4 +63,19 @@ class PersonRepository implements PersonRepositoryInterface
     {
         return $this->repository->findOneBy(['boardGameGeekId' => $id]);
     }
+
+    /**
+     * @param array $ids
+     *
+     * @return array
+     */
+    public function findByBoardGameGeekIds(array $ids): array
+    {
+        return $this->repository
+            ->createQueryBuilder('p')
+            ->where('p.boardGameGeekId in (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
 }

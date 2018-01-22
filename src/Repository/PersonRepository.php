@@ -14,4 +14,6 @@ interface PersonRepository
     public function find(UuidInterface $uuid): ?Person;
 
     public function findByBoardGameGeekId(int $id): ?Person;
+
+    public function findByBoardGameGeekIds(array $ids): array;
 }
