@@ -70,17 +70,7 @@ class ImportGame extends Command
     {
         foreach ($input->getArgument('games') as $key => $game) {
             if (0 === $key % 10) {
-                $output->writeln(
-                    '<comment>'.
-                    sprintf(
-                        'Memory usage (currently) %dKB/ (max) %dKB',
-                        round(memory_get_usage(true) / 1024),
-                        memory_get_peak_usage(true) / 1024
-                    ).
-                    '</comment>'
-                );
-                $this->entityManager->clear();
-                gc_collect_cycles();
+                $this->clearMemory($output);
             }
 
             if ($this->gameRepository->findByBoardGameGeekId($game) instanceof Game) {
@@ -117,12 +107,30 @@ class ImportGame extends Command
     }
 
     /**
+     * @param OutputInterface $output
+     */
+    private function clearMemory(OutputInterface $output): void
+    {
+        $output->writeln(
+            '<comment>'.
+            sprintf(
+                'Memory usage (currently) %dKB/ (max) %dKB',
+                round(memory_get_usage(true) / 1024),
+                memory_get_peak_usage(true) / 1024
+            ).
+            '</comment>'
+        );
+        $this->entityManager->clear();
+        gc_collect_cycles();
+    }
+
+    /**
      * @param SimpleXMLElement $data
-     * @param int $id
-     *
-     * @return CreateGameCommand
+     * @param int              $id
      *
      * @throws ImportException
+     *
+     * @return CreateGameCommand
      */
     private function createCommandFromSimpleXMLElement(SimpleXMLElement $data, int $id)
     {
@@ -134,7 +142,7 @@ class ImportGame extends Command
 
         $title = null;
         foreach ($game->name as $name) {
-            if ((bool)  $name->attributes()->primary) {
+            if ((bool) $name->attributes()->primary) {
                 $title = (string) $name;
             }
         }

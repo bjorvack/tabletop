@@ -4,6 +4,7 @@ namespace App\Command\Console;
 
 use App\Command\CreatePerson as CreatePersonCommand;
 use App\Entity\Person;
+use App\Exception\ImportException;
 use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -68,17 +69,7 @@ class ImportPerson extends Command
     {
         foreach ($input->getArgument('persons') as $key => $person) {
             if (0 === $key % 10) {
-                $output->writeln(
-                    '<comment>'.
-                    sprintf(
-                        'Memory usage (currently) %dKB/ (max) %dKB',
-                        round(memory_get_usage(true) / 1024),
-                        memory_get_peak_usage(true) / 1024
-                    ).
-                    '</comment>'
-                );
-                $this->entityManager->clear();
-                gc_collect_cycles();
+                $this->clearMemory($output);
             }
 
             if ($this->personRepository->findByBoardGameGeekId($person) instanceof Person) {
@@ -114,6 +105,24 @@ class ImportPerson extends Command
     }
 
     /**
+     * @param OutputInterface $output
+     */
+    private function clearMemory(OutputInterface $output): void
+    {
+        $output->writeln(
+            '<comment>'.
+            sprintf(
+                'Memory usage (currently) %dKB/ (max) %dKB',
+                round(memory_get_usage(true) / 1024),
+                memory_get_peak_usage(true) / 1024
+            ).
+            '</comment>'
+        );
+        $this->entityManager->clear();
+        gc_collect_cycles();
+    }
+
+    /**
      * @param SimpleXMLElement $data
      * @param int              $id
      *
@@ -129,6 +138,32 @@ class ImportPerson extends Command
             null,
             $id
         );
+    }
+
+    /**
+     * @param array $ids
+     *
+     * @throws ImportException
+     *
+     * @return SimpleXMLElement
+     */
+    private function getPersonsInfo(array $ids): SimpleXMLElement
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, self::ENDPOINT.implode(',', $ids));
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+
+        $result = simplexml_load_string(
+            curl_exec($curl)
+        );
+
+        curl_close($curl);
+
+        if (!$result instanceof SimpleXMLElement) {
+            throw ImportException::create();
+        }
+
+        return $result;
     }
 
     /**

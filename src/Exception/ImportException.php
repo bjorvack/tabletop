@@ -11,6 +11,6 @@ class ImportException extends Exception
      */
     public static function create(): self
     {
-        return new self("Invalid import data");
+        return new self('Invalid import data');
     }
 }
