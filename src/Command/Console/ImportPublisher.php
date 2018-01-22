@@ -4,6 +4,7 @@ namespace App\Command\Console;
 
 use App\Command\CreatePublisher as CreatePublisherCommand;
 use App\Entity\Publisher;
+use App\Exception\ImportException;
 use App\Repository\PublisherRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -16,7 +17,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ImportPublisher extends Command
 {
-    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/company/';
+    private const ENDPOINT = 'https://boardgamegeek.com/xmlapi/publisher/';
 
     /** @var CommandBus */
     private $commandBus;
@@ -29,7 +30,7 @@ class ImportPublisher extends Command
 
     /**
      * @param CommandBus             $commandBus
-     * @param PublisherRepository    $publisherRepository
+     * @param PublisherRepository       $publisherRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
@@ -66,19 +67,22 @@ class ImportPublisher extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($input->getArgument('publishers') as $key => $publisher) {
+        $publishers = $input->getArgument('publishers');
+
+        $importedPublishers = [];
+
+        foreach (array_chunk($publishers, 100) as $chunk) {
+            $importedChunk = $this->publisherRepository->findByBoardGameGeekIds($chunk);
+            array_walk($importedChunk, function (Publisher &$item) {
+                $item = $item->getBoardGameGeekId();
+            });
+
+            $importedPublishers = array_merge($importedPublishers, $importedChunk);
+        }
+
+        foreach (array_diff($publishers, $importedPublishers) as $key => $publisher) {
             if (0 === $key % 10) {
-                $output->writeln(
-                    '<comment>'.
-                    sprintf(
-                        'Memory usage (currently) %dKB/ (max) %dKB',
-                        round(memory_get_usage(true) / 1024),
-                        memory_get_peak_usage(true) / 1024
-                    ).
-                    '</comment>'
-                );
-                $this->entityManager->clear();
-                gc_collect_cycles();
+                $this->clearMemory($output);
             }
 
             if ($this->publisherRepository->findByBoardGameGeekId($publisher) instanceof Publisher) {
@@ -111,6 +115,24 @@ class ImportPublisher extends Command
                 $output->writeln("<comment>Publisher with id $publisher not found</comment>");
             }
         }
+    }
+
+    /**
+     * @param OutputInterface $output
+     */
+    private function clearMemory(OutputInterface $output): void
+    {
+        $output->writeln(
+            '<comment>'.
+            sprintf(
+                'Memory usage (currently) %dKB/ (max) %dKB',
+                round(memory_get_usage(true) / 1024),
+                memory_get_peak_usage(true) / 1024
+            ).
+            '</comment>'
+        );
+        $this->entityManager->clear();
+        gc_collect_cycles();
     }
 
     /**

@@ -55,7 +55,7 @@ class ImportPerson extends Command
                 'persons',
                 InputArgument::IS_ARRAY,
                 "The id's of the persons to import",
-                range(1, 100000)
+                range(42591, 100000)
             );
     }
 
@@ -151,32 +151,6 @@ class ImportPerson extends Command
             null,
             $id
         );
-    }
-
-    /**
-     * @param array $ids
-     *
-     * @throws ImportException
-     *
-     * @return SimpleXMLElement
-     */
-    private function getPersonsInfo(array $ids): SimpleXMLElement
-    {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::ENDPOINT.implode(',', $ids));
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-        $result = simplexml_load_string(
-            curl_exec($curl)
-        );
-
-        curl_close($curl);
-
-        if (!$result instanceof SimpleXMLElement) {
-            throw ImportException::create();
-        }
-
-        return $result;
     }
 
     /**
