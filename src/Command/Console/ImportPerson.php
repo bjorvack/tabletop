@@ -55,7 +55,7 @@ class ImportPerson extends Command
                 'persons',
                 InputArgument::IS_ARRAY,
                 "The id's of the persons to import",
-                range(42591, 100000)
+                range(0, 100000)
             );
     }
 
