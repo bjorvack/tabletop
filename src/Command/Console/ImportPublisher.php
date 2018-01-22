@@ -4,7 +4,6 @@ namespace App\Command\Console;
 
 use App\Command\CreatePublisher as CreatePublisherCommand;
 use App\Entity\Publisher;
-use App\Exception\ImportException;
 use App\Repository\PublisherRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -30,7 +29,7 @@ class ImportPublisher extends Command
 
     /**
      * @param CommandBus             $commandBus
-     * @param PublisherRepository       $publisherRepository
+     * @param PublisherRepository    $publisherRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(

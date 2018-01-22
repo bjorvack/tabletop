@@ -5,10 +5,12 @@ namespace App\Command\Console;
 use App\Command\CreateGame as CreateGameCommand;
 use App\Entity\Game;
 use App\Exception\ImportException;
+use App\Repository\PersonRepository;
 use App\Repository\GameRepository;
+use App\Repository\PublisherRepository;
 use DateTimeImmutable;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
-use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
 use SimpleXMLElement;
 use Symfony\Component\Console\Command\Command;
@@ -29,19 +31,31 @@ class ImportGame extends Command
     /** @var EntityManagerInterface */
     private $entityManager;
 
+    /** @var PersonRepository */
+    private $personRepository;
+
+    /** @var PublisherRepository */
+    private $publisherRepository;
+
     /**
      * @param CommandBus             $commandBus
      * @param GameRepository         $gameRepository
+     * @param PersonRepository       $personRepository
+     * @param PublisherRepository    $publisherRepository
      * @param EntityManagerInterface $entityManager
      */
     public function __construct(
         CommandBus $commandBus,
         GameRepository $gameRepository,
+        PersonRepository $personRepository,
+        PublisherRepository $publisherRepository,
         EntityManagerInterface $entityManager
     ) {
         parent::__construct();
         $this->commandBus = $commandBus;
         $this->gameRepository = $gameRepository;
+        $this->personRepository = $personRepository;
+        $this->publisherRepository = $publisherRepository;
         $this->entityManager = $entityManager;
 
         $entityManager->getConnection()->getConfiguration()->setSQLLogger(null);
@@ -68,40 +82,52 @@ class ImportGame extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        foreach ($input->getArgument('games') as $key => $game) {
+        $games = $input->getArgument('games');
+
+        $importedGames = [];
+
+        foreach (array_chunk($games, 100) as $chunk) {
+            $importedChunk = $this->gameRepository->findByBoardGameGeekIds($chunk);
+            array_walk($importedChunk, function (Game &$item) {
+                $item = $item->getBoardGameGeekId();
+            });
+
+            $importedGames = array_merge($importedGames, $importedGames);
+        }
+
+        foreach (array_chunk(array_diff($games, $importedGames), 200) as $key => $chunk) {
             if (0 === $key % 10) {
                 $this->clearMemory($output);
             }
 
-            if ($this->gameRepository->findByBoardGameGeekId($game) instanceof Game) {
-                $output->writeln("<comment>Game with id $game already imported</comment>");
-                continue;
-            }
+            $this->importGames($chunk, $output);
+        }
+    }
 
-            try {
-                $data = $this->getGameInfo(
-                    intval($game)
-                );
-            } catch (Exception $e) {
-                $output->writeln("<error>Game with id $game returned an error</error>");
-                continue;
-            }
+    /**
+     * @param array           $ids
+     * @param OutputInterface $output
+     */
+    private function importGames(array $ids, OutputInterface $output): void
+    {
+        try {
+            $gamesInfo = $this->getGamesInfo($ids);
 
-            if ($data) {
-                try {
-                    /** @var CreateGameCommand $createGame */
-                    $createGame = $this->createCommandFromSimpleXMLElement($data, $game);
-                } catch (Exception $e) {
-                    $output->writeln("<error>Game with id $game has invalid data</error>");
-                    continue;
-                }
+            foreach ($gamesInfo->children() as $gameInfo) {
+                $command = $this->createCommandFromSimpleXMLElement($gameInfo);
 
-                $this->commandBus->handle($createGame);
+                $this->commandBus->handle($command);
+
                 $output->writeln(
-                    "<info>Game with id $game imported as ".$createGame->getTitle().'</info>'
+                    '<info>Game with id '.$command->getBoardGameGeekId().' imported as '.$command->getTitle().'</info>'
                 );
-            } else {
-                $output->writeln("<comment>Game with id $game not found</comment>");
+            }
+        } catch (ImportException $e) {
+            if (count($ids) > 1) {
+                foreach (array_chunk($ids, (int) count($ids) / 2) as $chunk) {
+                    $this->importGames($chunk, $output);
+                    $this->clearMemory($output);
+                }
             }
         }
     }
@@ -125,17 +151,14 @@ class ImportGame extends Command
     }
 
     /**
-     * @param SimpleXMLElement $data
-     * @param int              $id
+     * @param SimpleXMLElement $game
      *
      * @throws ImportException
      *
      * @return CreateGameCommand
      */
-    private function createCommandFromSimpleXMLElement(SimpleXMLElement $data, int $id)
+    private function createCommandFromSimpleXMLElement(SimpleXMLElement $game)
     {
-        $game = $data->children()[0];
-
         if ($game->error) {
             throw ImportException::create();
         }
@@ -147,27 +170,63 @@ class ImportGame extends Command
             }
         }
 
+        $artists = null;
+        if ($game->boardgameartist) {
+            $ids = [];
+
+            /** @var SimpleXMLElement $artist */
+            foreach ($game->boardgameartist as $artist) {
+                $ids[] = (int) $artist->attributes()['objectid'];
+            }
+
+            $artists = new ArrayCollection($this->personRepository->findByBoardGameGeekIds($ids));
+        }
+
+        $designers = null;
+        if ($game->boardgamedesigner) {
+            $ids = [];
+
+            /** @var SimpleXMLElement $designer */
+            foreach ($game->boardgamedesigner as $designer) {
+                $ids[] = (int) $designer->attributes()['objectid'];
+            }
+
+            $designers = new ArrayCollection($this->personRepository->findByBoardGameGeekIds($ids));
+        }
+
+        $publishers = null;
+        if ($game->boardgamepublisher) {
+            $ids = [];
+
+            /** @var SimpleXMLElement $publisher */
+            foreach ($game->boardgamepublisher as $publisher) {
+                $ids[] = (int) $publisher->attributes()['objectid'];
+            }
+
+            $publishers = new ArrayCollection($this->publisherRepository->findByBoardGameGeekIds($ids));
+        }
+
         return new CreateGameCommand(
             $title,
             (string) $game->description,
             DateTimeImmutable::createFromFormat('Y', (string) $game->yearpublished),
             (string) $game->image,
-            null,
-            null,
-            null,
-            $id
+            $artists,
+            $designers,
+            $publishers,
+            (int) $game->attributes()['objectid']
         );
     }
 
     /**
-     * @param int $id
+     * @param array $ids
      *
      * @return null|SimpleXMLElement
      */
-    private function getGameInfo(int $id): ?SimpleXMLElement
+    private function getGamesInfo(array $ids): ?SimpleXMLElement
     {
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::ENDPOINT.$id);
+        curl_setopt($curl, CURLOPT_URL, self::ENDPOINT.implode(',', $ids));
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
 
         $result = simplexml_load_string(

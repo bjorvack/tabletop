@@ -4,7 +4,6 @@ namespace App\Command\Console;
 
 use App\Command\CreatePerson as CreatePersonCommand;
 use App\Entity\Person;
-use App\Exception\ImportException;
 use App\Repository\PersonRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
@@ -55,7 +54,7 @@ class ImportPerson extends Command
                 'persons',
                 InputArgument::IS_ARRAY,
                 "The id's of the persons to import",
-                range(0, 100000)
+                range(1, 100000)
             );
     }
 

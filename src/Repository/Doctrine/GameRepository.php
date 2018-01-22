@@ -66,6 +66,21 @@ class GameRepository implements GameRepositoryInterface
     }
 
     /**
+     * @param array $ids
+     *
+     * @return array
+     */
+    public function findByBoardGameGeekIds(array $ids): array
+    {
+        return $this->repository
+            ->createQueryBuilder('g')
+            ->where('g.boardGameGeekId in (:ids)')
+            ->setParameter('ids', $ids)
+            ->getQuery()
+            ->getResult();
+    }
+
+    /**
      * @param Person $person
      *
      * @return array
