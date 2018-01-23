@@ -7,6 +7,10 @@ use Ramsey\Uuid\UuidInterface;
 
 interface PersonRepository
 {
+    public function count(): int;
+
+    public function list(int $limit, int $offset): array;
+
     public function save(Person $person): void;
 
     public function remove(Person $person): void;

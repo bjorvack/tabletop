@@ -3,12 +3,13 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity()
  */
-class Person
+class Person implements JsonSerializable
 {
     /**
      * @var UuidInterface
@@ -113,5 +114,18 @@ class Person
     public function getBoardGameGeekId(): ?int
     {
         return $this->boardGameGeekId;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'uuid' => (string) $this->getUuid(),
+            'name' => $this->getName(),
+            'description' => $this->getDescription(),
+            'website' => $this->getWebsite(),
+        ];
     }
 }

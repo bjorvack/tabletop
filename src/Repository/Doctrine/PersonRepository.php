@@ -6,6 +6,7 @@ use App\Entity\Person;
 use App\Repository\PersonRepository as PersonRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Ramsey\Uuid\UuidInterface;
 
 class PersonRepository implements PersonRepositoryInterface
@@ -24,6 +25,34 @@ class PersonRepository implements PersonRepositoryInterface
     ) {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Person::class);
+    }
+
+    /**
+     * @return int
+     *
+     * @throws NonUniqueResultException
+     */
+    public function count(): int
+    {
+        return $this->repository->createQueryBuilder('p')
+            ->select('count(p.uuid)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    public function list(int $limit, int $offset = 0): array
+    {
+        return $this->repository->createQueryBuilder('p')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
     }
 
     /**

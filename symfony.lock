@@ -95,6 +95,15 @@
             "ref": "f7895777cd673fcefbc321a9063077a24e5df646"
         }
     },
+    "sensio/framework-extra-bundle": {
+        "version": "4.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.0",
+            "ref": "aaddfdf43cdecd4cf91f992052d76c2cadc04543"
+        }
+    },
     "simple-bus/message-bus": {
         "version": "v3.0.1"
     },
