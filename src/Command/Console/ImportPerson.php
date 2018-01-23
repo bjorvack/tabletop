@@ -77,6 +77,8 @@ class ImportPerson extends Command
             });
 
             $importedPersons = array_merge($importedPersons, $importedChunk);
+            unset($importedChunk);
+            $this->clearMemory(null);
         }
 
         foreach (array_diff($persons, $importedPersons) as $key => $person) {
@@ -102,7 +104,7 @@ class ImportPerson extends Command
                 try {
                     $createPerson = $this->createCommandFromSimpleXMLElement($data, $person);
                 } catch (Exception $e) {
-                    $output->writeln("<error>Person with id $person has invalid data</error>");
+                    $output->writeln("<info>Person with id $person has invalid data</info>");
                     continue;
                 }
 
@@ -111,25 +113,28 @@ class ImportPerson extends Command
                     "<info>Person with id $person imported as ".$createPerson->getName().'</info>'
                 );
             } else {
-                $output->writeln("<comment>Person with id $person not found</comment>");
+                $output->writeln("<error>Person with id $person not found</error>");
             }
         }
     }
 
     /**
-     * @param OutputInterface $output
+     * @param OutputInterface|null $output
      */
-    private function clearMemory(OutputInterface $output): void
+    private function clearMemory(?OutputInterface $output): void
     {
-        $output->writeln(
-            '<comment>'.
-            sprintf(
-                'Memory usage (currently) %dKB/ (max) %dKB',
-                round(memory_get_usage(true) / 1024),
-                memory_get_peak_usage(true) / 1024
-            ).
-            '</comment>'
-        );
+        if ($output instanceof OutputInterface) {
+            $output->writeln(
+                '<comment>'.
+                sprintf(
+                    'Memory usage (currently) %dKB/ (max) %dKB',
+                    round(memory_get_usage(true) / 1024),
+                    memory_get_peak_usage(true) / 1024
+                ).
+                '</comment>'
+            );
+        }
+
         $this->entityManager->clear();
         gc_collect_cycles();
     }
