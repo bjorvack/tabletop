@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\Person;
+use App\Repository\GameRepository;
 use App\Repository\PersonRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -17,9 +18,15 @@ class PersonController extends Controller
     /** @var PersonRepository */
     private $personRepository;
 
-    public function __construct(PersonRepository $personRepository)
-    {
+    /** @var GameRepository */
+    private $gameRepository;
+
+    public function __construct(
+        PersonRepository $personRepository,
+        GameRepository $gameRepository
+    ) {
         $this->personRepository = $personRepository;
+        $this->gameRepository = $gameRepository;
     }
 
     /**
@@ -81,5 +88,24 @@ class PersonController extends Controller
         return new JsonResponse(
             $person
         );
+    }
+
+    /**
+     * @Route(
+     *     "/persons/{person}/games",
+     *     requirements={"person"="[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"},
+     *     name="person_games"
+     * )
+     *
+     * @param Person $person
+     *
+     * @return JsonResponse
+     */
+    public function games(Person $person)
+    {
+        return JsonResponse::create([
+            'asDesigner' => $this->gameRepository->findByDesigner($person),
+            'asArtist' => $this->gameRepository->findByArtist($person),
+        ]);
     }
 }
