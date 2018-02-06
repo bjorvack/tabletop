@@ -8,7 +8,7 @@ use App\Exception\ImportException;
 use App\Repository\PersonRepository;
 use App\Repository\GameRepository;
 use App\Repository\PublisherRepository;
-use DateTimeImmutable;
+use App\Utils\StringUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\EntityManagerInterface;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
@@ -70,7 +70,7 @@ class ImportGame extends Command
                 'games',
                 InputArgument::IS_ARRAY,
                 "The id's of the games to import",
-                range(1, 100000)
+                range(1, 1000000)
             );
     }
 
@@ -86,16 +86,20 @@ class ImportGame extends Command
 
         $importedGames = [];
 
-        foreach (array_chunk($games, 100) as $chunk) {
+        foreach (array_chunk($games, 800) as $chunk) {
             $importedChunk = $this->gameRepository->findByBoardGameGeekIds($chunk);
             array_walk($importedChunk, function (Game &$item) {
                 $item = $item->getBoardGameGeekId();
             });
 
-            $importedGames = array_merge($importedGames, $importedGames);
+            $importedGames = array_merge($importedChunk, $importedGames);
+            $this->clearMemory(null);
         }
 
-        foreach (array_chunk(array_diff($games, $importedGames), 200) as $key => $chunk) {
+        $games = array_diff($games, $importedGames);
+        $gamesChunks = array_chunk($games, 1000);
+
+        foreach ($gamesChunks as $key => $chunk) {
             if (0 === $key % 10) {
                 $this->clearMemory($output);
             }
@@ -133,19 +137,22 @@ class ImportGame extends Command
     }
 
     /**
-     * @param OutputInterface $output
+     * @param OutputInterface|null $output
      */
-    private function clearMemory(OutputInterface $output): void
+    private function clearMemory(?OutputInterface $output): void
     {
-        $output->writeln(
-            '<comment>'.
-            sprintf(
-                'Memory usage (currently) %dKB/ (max) %dKB',
-                round(memory_get_usage(true) / 1024),
-                memory_get_peak_usage(true) / 1024
-            ).
-            '</comment>'
-        );
+        if ($output instanceof OutputInterface) {
+            $output->writeln(
+                '<comment>'.
+                sprintf(
+                    'Memory usage (currently) %dKB/ (max) %dKB',
+                    round(memory_get_usage(true) / 1024),
+                    memory_get_peak_usage(true) / 1024
+                ).
+                '</comment>'
+            );
+        }
+
         $this->entityManager->clear();
         gc_collect_cycles();
     }
@@ -206,12 +213,16 @@ class ImportGame extends Command
             $publishers = new ArrayCollection($this->publisherRepository->findByBoardGameGeekIds($ids));
         }
 
+        if (null === $game->attributes()['objectid']) {
+            throw ImportException::create();
+        }
+
         return new CreateGameCommand(
-            $title,
-            (string) $game->description,
+            StringUtils::cleanup($title),
+            StringUtils::cleanup((string) $game->description),
             (int) $game->minplayers,
             (int) $game->maxplayers,
-            DateTimeImmutable::createFromFormat('Y', (string) $game->yearpublished),
+            intval($game->yearpublished),
             (string) $game->image,
             $artists,
             $designers,

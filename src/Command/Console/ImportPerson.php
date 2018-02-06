@@ -5,6 +5,7 @@ namespace App\Command\Console;
 use App\Command\CreatePerson as CreatePersonCommand;
 use App\Entity\Person;
 use App\Repository\PersonRepository;
+use App\Utils\StringUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
@@ -150,8 +151,8 @@ class ImportPerson extends Command
         $person = $data->children()[0];
 
         return new CreatePersonCommand(
-            (string) $person->name,
-            (string) $person->description,
+            StringUtils::cleanup((string) $person->name),
+            StringUtils::cleanup((string) $person->description),
             null,
             $id
         );

@@ -2,7 +2,6 @@
 
 namespace App\Command;
 
-use DateTimeImmutable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Ramsey\Uuid\Uuid;
@@ -25,7 +24,7 @@ class CreateGame
     /** @var int|null */
     private $maxPlayers;
 
-    /** @var DateTimeImmutable|null */
+    /** @var int|null */
     private $publishedOn;
 
     /** @var string */
@@ -44,23 +43,23 @@ class CreateGame
     private $boardGameGeekId;
 
     /**
-     * @param string                 $title
-     * @param null|string            $description
-     * @param int                    $minPlayers
-     * @param int|null               $maxPlayers
-     * @param DateTimeImmutable|null $publishedOn
-     * @param string                 $image
-     * @param Collection|null        $artists
-     * @param Collection|null        $designers
-     * @param Collection|null        $publishers
-     * @param int|null               $boardGameGeek
+     * @param string          $title
+     * @param null|string     $description
+     * @param int             $minPlayers
+     * @param int|null        $maxPlayers
+     * @param int|null        $publishedOn
+     * @param string          $image
+     * @param Collection|null $artists
+     * @param Collection|null $designers
+     * @param Collection|null $publishers
+     * @param int|null        $boardGameGeek
      */
     public function __construct(
         string $title,
         ?string $description,
         int $minPlayers,
         ?int $maxPlayers,
-        ?DateTimeImmutable $publishedOn,
+        ?int $publishedOn,
         string $image,
         ?Collection $artists,
         ?Collection $designers,
@@ -121,9 +120,9 @@ class CreateGame
     }
 
     /**
-     * @return DateTimeImmutable|null
+     * @return int|null
      */
-    public function getPublishedOn(): ?DateTimeImmutable
+    public function getPublishedOn(): ?int
     {
         return $this->publishedOn;
     }

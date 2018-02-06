@@ -2,13 +2,15 @@
 
 namespace App\Entity;
 
+use App\Utils\StringUtils;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity()
  */
-class Publisher
+class Publisher implements JsonSerializable
 {
     /**
      * @var UuidInterface
@@ -116,5 +118,18 @@ class Publisher
     public function getBoardGameGeekId(): ?int
     {
         return $this->boardGameGeekId;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'uuid' => (string) $this->getUuid(),
+            'name' => StringUtils::cleanup($this->getName()),
+            'description' => StringUtils::cleanup($this->getDescription()),
+            'website' => $this->getWebsite(),
+        ];
     }
 }

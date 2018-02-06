@@ -5,6 +5,7 @@ namespace App\Command\Console;
 use App\Command\CreatePublisher as CreatePublisherCommand;
 use App\Entity\Publisher;
 use App\Repository\PublisherRepository;
+use App\Utils\StringUtils;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use SimpleBus\SymfonyBridge\Bus\CommandBus;
@@ -77,6 +78,8 @@ class ImportPublisher extends Command
             });
 
             $importedPublishers = array_merge($importedPublishers, $importedChunk);
+            unset($importedChunk);
+            $this->clearMemory(null);
         }
 
         foreach (array_diff($publishers, $importedPublishers) as $key => $publisher) {
@@ -102,7 +105,7 @@ class ImportPublisher extends Command
                 try {
                     $createPublisher = $this->createCommandFromSimpleXMLElement($data, $publisher);
                 } catch (Exception $e) {
-                    $output->writeln("<error>Publisher with id $publisher has invalid data</error>");
+                    $output->writeln("<info>Publisher with id $publisher has invalid data</info>");
                     continue;
                 }
 
@@ -111,25 +114,28 @@ class ImportPublisher extends Command
                     "<info>Publisher with id $publisher imported as ".$createPublisher->getName().'</info>'
                 );
             } else {
-                $output->writeln("<comment>Publisher with id $publisher not found</comment>");
+                $output->writeln("<error>Publisher with id $publisher not found</error>");
             }
         }
     }
 
     /**
-     * @param OutputInterface $output
+     * @param OutputInterface|null $output
      */
-    private function clearMemory(OutputInterface $output): void
+    private function clearMemory(?OutputInterface $output): void
     {
-        $output->writeln(
-            '<comment>'.
-            sprintf(
-                'Memory usage (currently) %dKB/ (max) %dKB',
-                round(memory_get_usage(true) / 1024),
-                memory_get_peak_usage(true) / 1024
-            ).
-            '</comment>'
-        );
+        if ($output instanceof OutputInterface) {
+            $output->writeln(
+                '<comment>'.
+                sprintf(
+                    'Memory usage (currently) %dKB/ (max) %dKB',
+                    round(memory_get_usage(true) / 1024),
+                    memory_get_peak_usage(true) / 1024
+                ).
+                '</comment>'
+            );
+        }
+
         $this->entityManager->clear();
         gc_collect_cycles();
     }
@@ -145,8 +151,8 @@ class ImportPublisher extends Command
         $publisher = $data->children()[0];
 
         return new CreatePublisherCommand(
-            (string) $publisher->name,
-            (string) $publisher->description,
+            StringUtils::cleanup((string) $publisher->name),
+            StringUtils::cleanup((string) $publisher->description),
             null,
             $id
         );

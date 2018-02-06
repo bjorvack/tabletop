@@ -28,9 +28,9 @@ class PersonRepository implements PersonRepositoryInterface
     }
 
     /**
-     * @return int
-     *
      * @throws NonUniqueResultException
+     *
+     * @return int
      */
     public function count(): int
     {

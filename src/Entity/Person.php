@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Utils\StringUtils;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use Ramsey\Uuid\UuidInterface;
@@ -123,8 +124,8 @@ class Person implements JsonSerializable
     {
         return [
             'uuid' => (string) $this->getUuid(),
-            'name' => $this->getName(),
-            'description' => $this->getDescription(),
+            'name' => StringUtils::cleanup($this->getName()),
+            'description' => StringUtils::cleanup($this->getDescription()),
             'website' => $this->getWebsite(),
         ];
     }

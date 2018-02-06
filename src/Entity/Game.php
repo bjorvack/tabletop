@@ -2,16 +2,17 @@
 
 namespace App\Entity;
 
-use DateTimeImmutable;
+use App\Utils\StringUtils;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use JsonSerializable;
 use Ramsey\Uuid\UuidInterface;
 
 /**
  * @ORM\Entity()
  */
-class Game
+class Game implements JsonSerializable
 {
     /**
      * @var UuidInterface
@@ -60,9 +61,9 @@ class Game
     private $maxPlayers;
 
     /**
-     * @var DateTimeImmutable
+     * @var int
      *
-     * @ORM\Column(type="datetime_immutable")
+     * @ORM\Column(type="integer")
      */
     private $publishedOn;
 
@@ -124,17 +125,17 @@ class Game
     private $boardGameGeekId;
 
     /**
-     * @param UuidInterface     $uuid
-     * @param string            $title
-     * @param null|string       $description
-     * @param int               $minPlayers
-     * @param int|null          $maxPlayers
-     * @param DateTimeImmutable $publishedOn
-     * @param string            $image
-     * @param Collection|null   $artists
-     * @param Collection|null   $designers
-     * @param Collection|null   $publishers
-     * @param int|null          $boardGameGeekId
+     * @param UuidInterface   $uuid
+     * @param string          $title
+     * @param null|string     $description
+     * @param int             $minPlayers
+     * @param int|null        $maxPlayers
+     * @param int             $publishedOn
+     * @param string          $image
+     * @param Collection|null $artists
+     * @param Collection|null $designers
+     * @param Collection|null $publishers
+     * @param int|null        $boardGameGeekId
      */
     public function __construct(
         UuidInterface $uuid,
@@ -142,7 +143,7 @@ class Game
         ?string $description,
         int $minPlayers,
         ?int $maxPlayers,
-        DateTimeImmutable $publishedOn,
+        int $publishedOn,
         string $image,
         ?Collection $artists,
         ?Collection $designers,
@@ -203,9 +204,9 @@ class Game
     }
 
     /**
-     * @return DateTimeImmutable
+     * @return int
      */
-    public function getPublishedOn(): DateTimeImmutable
+    public function getPublishedOn(): int
     {
         return $this->publishedOn;
     }
@@ -248,5 +249,26 @@ class Game
     public function getBoardGameGeekId(): ?int
     {
         return $this->boardGameGeekId;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return [
+            'uuid' => (string) $this->getUuid(),
+            'title' => StringUtils::cleanup($this->getTitle()),
+            'description' => StringUtils::cleanup($this->getDescription()),
+            'players' => [
+                'min' => $this->getMinPlayers(),
+                'max' => $this->getMaxPlayers(),
+            ],
+            'publishedOn' => $this->getPublishedOn(),
+            'image' => $this->getImage(),
+            'artists' => $this->getArtists()->toArray(),
+            'designers' => $this->getDesigners()->toArray(),
+            'publishers' => $this->getPublishers()->toArray(),
+        ];
     }
 }

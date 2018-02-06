@@ -30,12 +30,6 @@ class CreateGameHandler
     public function handle(CreateGame $createGame): void
     {
         $image = $createGame->getImage();
-        if (!file_exists($createGame->getImage())) {
-            $image = $this->downloadImage(
-                $createGame->getImage(),
-                (string) $createGame->getUuid()
-            );
-        }
 
         $this->gameRepository->save(
             new Game(
@@ -52,29 +46,5 @@ class CreateGameHandler
                 $createGame->getBoardGameGeekId()
             )
         );
-    }
-
-    /**
-     * @param string $image
-     * @param string $destination
-     *
-     * @return string
-     */
-    private function downloadImage(string $image, string $destination): string
-    {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_POST, 0);
-        curl_setopt($ch, CURLOPT_URL, $image);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        $imageData = curl_exec($ch);
-        curl_close($ch);
-
-        $path = '/assets/images/games/'.$destination;
-
-        $saveFile = fopen($this->kernel->getRootDir().'/../public'.$path, 'w');
-        fwrite($saveFile, $imageData);
-        fclose($saveFile);
-
-        return $path;
     }
 }

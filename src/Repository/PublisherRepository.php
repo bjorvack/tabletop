@@ -7,6 +7,10 @@ use Ramsey\Uuid\UuidInterface;
 
 interface PublisherRepository
 {
+    public function count(): int;
+
+    public function list(int $limit, int $offset): array;
+
     public function save(Publisher $publisher): void;
 
     public function remove(Publisher $publisher): void;

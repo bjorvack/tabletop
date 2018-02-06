@@ -2,39 +2,39 @@
 
 namespace App\Controller;
 
-use App\Entity\Person;
+use App\Entity\Publisher;
 use App\Repository\GameRepository;
-use App\Repository\PersonRepository;
+use App\Repository\PublisherRepository;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class PersonController extends Controller
+class PublisherController extends Controller
 {
     private const MAX_PAGE_SIZE = 1000;
     private const DEFAULT_PAGE_SIZE = 500;
 
-    /** @var PersonRepository */
-    private $personRepository;
+    /** @var PublisherRepository */
+    private $publisherRepository;
 
     /** @var GameRepository */
     private $gameRepository;
 
     public function __construct(
-        PersonRepository $personRepository,
+        PublisherRepository $publisherRepository,
         GameRepository $gameRepository
     ) {
-        $this->personRepository = $personRepository;
+        $this->publisherRepository = $publisherRepository;
         $this->gameRepository = $gameRepository;
     }
 
     /**
      * @Route(
-     *     "/persons/{page}/{pageSize}",
+     *     "/publishers/{page}/{pageSize}",
      *     defaults={"page"=1, "pageSize"=null},
      *     requirements={"page"="\d+", "pageSize"="\d+"},
-     *     name="persons"
+     *     name="publishers"
      * )
      *
      * @param int|null $page
@@ -58,8 +58,8 @@ class PersonController extends Controller
 
         $offset = ($page - 1) * $pageSize;
 
-        $records = $this->personRepository->count();
-        $persons = $this->personRepository->list(
+        $records = $this->publisherRepository->count();
+        $publishers = $this->publisherRepository->list(
             $pageSize,
             $offset
         );
@@ -68,44 +68,43 @@ class PersonController extends Controller
             'page' => $page,
             'pageSize' => $pageSize,
             'totalRecords' => $records,
-            'persons' => $persons,
+            'publishers' => $publishers,
         ]);
     }
 
     /**
      * @Route(
-     *     "/persons/{person}",
-     *     requirements={"person"="[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"},
-     *     name="person"
+     *     "/publishers/{publisher}",
+     *     requirements={"publisher"="[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"},
+     *     name="publisher"
      * )
      *
-     * @param Person $person
+     * @param Publisher $publisher
      *
      * @return JsonResponse
      */
-    public function show(Person $person)
+    public function show(Publisher $publisher)
     {
         return new JsonResponse(
-            $person
+            $publisher
         );
     }
 
     /**
      * @Route(
-     *     "/persons/{person}/games",
-     *     requirements={"person"="[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"},
-     *     name="person_games"
+     *     "/publishers/{publisher}/games",
+     *     requirements={"publisher"="[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89aAbB][a-f0-9]{3}-[a-f0-9]{12}"},
+     *     name="publisher_games"
      * )
      *
-     * @param Person $person
+     * @param Publisher $publisher
      *
      * @return JsonResponse
      */
-    public function games(Person $person)
+    public function games(Publisher $publisher)
     {
-        return JsonResponse::create([
-            'asDesigner' => $this->gameRepository->findByDesigner($person),
-            'asArtist' => $this->gameRepository->findByArtist($person),
-        ]);
+        return new JsonResponse(
+            $this->gameRepository->findByPublisher($publisher)
+        );
     }
 }

@@ -6,6 +6,7 @@ use App\Entity\Publisher;
 use App\Repository\PublisherRepository as PublisherRepositoryInterface;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Ramsey\Uuid\UuidInterface;
 
 class PublisherRepository implements PublisherRepositoryInterface
@@ -24,6 +25,34 @@ class PublisherRepository implements PublisherRepositoryInterface
     ) {
         $this->entityManager = $entityManager;
         $this->repository = $entityManager->getRepository(Publisher::class);
+    }
+
+    /**
+     * @throws NonUniqueResultException
+     *
+     * @return int
+     */
+    public function count(): int
+    {
+        return $this->repository->createQueryBuilder('p')
+            ->select('count(p.uuid)')
+            ->getQuery()
+            ->getSingleScalarResult();
+    }
+
+    /**
+     * @param int $limit
+     * @param int $offset
+     *
+     * @return array
+     */
+    public function list(int $limit, int $offset = 0): array
+    {
+        return $this->repository->createQueryBuilder('p')
+            ->setMaxResults($limit)
+            ->setFirstResult($offset)
+            ->getQuery()
+            ->getResult();
     }
 
     /**
