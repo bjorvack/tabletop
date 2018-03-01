@@ -3,6 +3,7 @@
 .env
 /public/bundles/
 /var/
+!/var/data.db
 /vendor/
 ###< symfony/framework-bundle ###
 
